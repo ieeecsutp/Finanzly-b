@@ -7,7 +7,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js"
-},
+  },
   "repository": {
     "type": "git",
     "url": "git@github-JustDieg0:ieeecsutp/Finanzly-b.git"
@@ -20,7 +20,10 @@
     "@prisma/client": "^6.13.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "express-validator": "^7.2.1"
+    "express-validator": "^7.2.1",
+    "pg": "^8.16.3",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.25"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
