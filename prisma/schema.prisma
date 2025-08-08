@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  idUsuario  Int @id @default(autoincrement()) @map("id_usuario")
+  nombre String
+  correo  String  @unique
+  contraseña String
+  fechaCreado DateTime @default(now()) @map("fecha_creado")
+
+  registro Registro[]
+}
+
+model Categoria {
+  idCategoria Int @id @default(autoincrement()) @map("id_categoria")
+  nombre String
+  tipo String
+
+  registro Registro[]
+}
+
+model Registro{
+  idRegistro Int @id @default(autoincrement()) @map("id_registro")
+  idUsuario Int @map("id_usuario")
+  idCategoria Int @map("id_categoria")
+  tipo String
+  descripcion String
+  monto Decimal
+  fechaRegistro DateTime @map("fecha_registro")
+  fechaCreacion DateTime @map("fecha_creacion")
+
+  usuario Usuario @relation(fields: [idUsuario], references: [idUsuario])
+  categoria Categoria @relation(fields: [idCategoria], references: [idCategoria])
+}
