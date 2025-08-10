@@ -20,7 +20,7 @@ model Usuario {
   contraseña String
   fechaCreado DateTime @default(now()) @map("fecha_creado")
 
-  registro Registro[]
+  registros Registro[]
 }
 
 model Categoria {
@@ -28,7 +28,7 @@ model Categoria {
   nombre String
   tipo String
 
-  registro Registro[]
+  registros Registro[]
 }
 
 model Registro{
