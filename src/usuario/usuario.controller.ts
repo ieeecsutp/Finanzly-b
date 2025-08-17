@@ -20,7 +20,7 @@ router.post("/",
 
             const response: ApiResponse<UsuarioDetailRs> = {
                 status: "success",
-                message: "Usuaio creado exitosamente",
+                message: "Usuario creado exitosamente",
                 data: newUsuario,
             };
 
@@ -38,7 +38,7 @@ router.get("/", async (_req: Request, res: Response, next: NextFunction) => {
         const usuarios = await usuarioService.getAllUsuarios();
         const response: ApiResponse<typeof usuarios> = {
             status: "success",
-            message: "Usuarios obtenido correctamente",
+            message: "Usuarios obtenidos correctamente",
             data: usuarios,
         };
         res.json(response);
@@ -66,4 +66,59 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
     }
 });
 
+
+
+
+// PUT /usuario/:id - Actualizar un usuario existente
+router.put("/:id",
+    userCreateRq(), // Puedes usar la misma validación o crear una específica para update
+    validateRequest("Datos invalidos"),
+    async (req: Request, res: Response, next: NextFunction) => {
+        try{
+            const id = Number(req.params.id);
+            const data = req.body;
+            
+            const updatedUsuario = await usuarioService.updateUsuario(id, data);
+
+            const response: ApiResponse<UsuarioDetailRs> = {
+                status: "success",
+                message: "Usuario actualizado exitosamente",
+                data: updatedUsuario,
+            };
+
+            res.status(200).json(response);
+        }catch (error){
+            next(error);
+        }
+    }    
+);
+
+// DELETE /usuario/:id - Eliminar un usuario
+router.delete("/:id",
+    async (req: Request, res: Response, next: NextFunction) => {
+        try{
+            const id = Number(req.params.id);
+            
+            await usuarioService.deleteUsuario(id);
+
+            const response: ApiResponse<null> = {
+                status: "success",
+                message: "Usuario eliminado exitosamente",
+                data: null,
+            };
+
+            res.status(200).json(response);
+        }catch (error){
+            next(error);
+        }
+    }    
+);
+
 export default router;
+
+
+//POST - Crear usuario
+//GET - Obtener todos los usuarios
+//GET /:id - Obtener usuario por ID
+//PUT /:id - Actualizar usuario
+//DELETE /:id - Eliminar usuario

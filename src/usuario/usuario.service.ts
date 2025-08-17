@@ -24,8 +24,29 @@ export class UsuarioService {
     async getUsuarioById(id: number): Promise<UsuarioDetailRs> {
         const usuario = await this.usuarioRepository.getById(id);
         if (!usuario) {
-            throw new ResourceNotFoundError("Usuario no econtrado.");
+            throw new ResourceNotFoundError("Usuario no encontrado.");
         }
         return toUserDetailRs(usuario);
+    }
+
+    async updateUsuario(id: number, data: Prisma.UsuarioUpdateInput): Promise<UsuarioDetailRs> {
+        // Verificar que el usuario existe antes de actualizar
+        const existingUsuario = await this.usuarioRepository.getById(id);
+        if (!existingUsuario) {
+            throw new ResourceNotFoundError("Usuario no encontrado.");
+        }
+
+        const updatedUsuario = await this.usuarioRepository.update(id, data);
+        return toUserDetailRs(updatedUsuario);
+    }
+
+    async deleteUsuario(id: number): Promise<void> {
+        // Verificar que el usuario existe antes de eliminar
+        const existingUsuario = await this.usuarioRepository.getById(id);
+        if (!existingUsuario) {
+            throw new ResourceNotFoundError("Usuario no encontrado.");
+        }
+
+        await this.usuarioRepository.delete(id);
     }
 }
