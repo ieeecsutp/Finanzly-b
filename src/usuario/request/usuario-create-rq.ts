@@ -15,5 +15,5 @@ export const userCreateRq = () => [
     body("contraseña")
         .trim()
         .notEmpty().withMessage("La contraseña es obligatoria")
-        .isLength({ min: 8, max: 50 }).withMessage("La contraseña debe tener entre 3 y 50 caracteres")
+        .isLength({ min: 8, max: 50 }).withMessage("La contraseña debe tener entre 8 y 50 caracteres")
 ]
