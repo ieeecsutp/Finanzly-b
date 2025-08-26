@@ -5,6 +5,7 @@ import { ApiResponse } from "../utils/api-response";
 import { userCreateRq } from "./request/usuario-create-rq";
 import { validateRequest } from "../utils/validate-request";
 import { UsuarioDetailRs } from "./response/usuario-detail-rs";
+import { verifyToken, verifyUserMatch } from "../utils/auth";
 
 const router = Router();
 const usuarioService = new UsuarioService();
@@ -49,7 +50,10 @@ router.get("/", async (_req: Request, res: Response, next: NextFunction) => {
 
 // GET /usuario/:id - Obtener un usuario por ID
 
-router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/:id",
+    verifyToken,
+    verifyUserMatch,
+    async (req: Request, res: Response, next: NextFunction) => {
     try {
         const id = Number(req.params.id);
         const usuario = await usuarioService.getUsuarioById(id);
