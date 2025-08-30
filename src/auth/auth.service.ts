@@ -1,3 +1,4 @@
+
 import { Prisma } from "@prisma/client";
 import { AuthRepository } from "./auth.repository";
 import { AuthLoginRs } from "./response/auth-login-rs";
@@ -45,5 +46,4 @@ export class AuthService {
         }
         return toAuthLoginRs(auth);
     }
-
 }

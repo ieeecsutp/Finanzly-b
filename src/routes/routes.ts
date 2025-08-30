@@ -1,10 +1,12 @@
 import { Router } from "express";
-import usuarioRoutes from "../usuario/usuario.controller"
-import authRoutes from "../auth/auth.controller"
+import usuarioController from "../usuario/usuario.controller";
+import registroController from "../registro/registro.controller";
+import categoriaController from "../categoria/categoria.controller";
 
 const router = Router();
 
-router.use("/usuarios", usuarioRoutes);
-router.use("/auth", authRout
+router.use("/usuarios", usuarioController);
+router.use("/registros", registroController);
+router.use("/categorias", categoriaController);
 
 export default router;

@@ -7,6 +7,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 import routes from "./routes/routes";
+import authController from "./auth/auth.controller";
 import { errorHandler } from "./utils/error-handler";
 
 const app = express();
@@ -34,6 +35,8 @@ app.get("/", (_req, res) => {
 app.get("/api/v1/credentials", (req,res) => {
   res.json({ author: AUTHOR });
 });
+
+app.use("/api/v1/auth", authController);
 
 app.use("/api/v1", routes);
 
