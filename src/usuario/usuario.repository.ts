@@ -25,4 +25,18 @@ export class UsuarioRepository {
             where: { correo: email },
         });
     }
+
+    // NUEVOS MÉTODOS AGREGADOS:
+    async update(id: number, data: Prisma.UsuarioUpdateInput): Promise<Usuario> {
+        return await prisma.usuario.update({
+            where: { idUsuario: id },
+            data,
+        });
+    }
+
+    async delete(id: number): Promise<Usuario> {
+        return await prisma.usuario.delete({
+            where: { idUsuario: id },
+        });
+    }
 }
