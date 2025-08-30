@@ -1,44 +1,49 @@
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-import { UsuarioRepository } from "../usuario/usuario.repository";
-import { toUserDetailRs } from "../usuario/mapper/usuario.mapper";
-import { UnauthorizedError } from "../utils/error-types";
 
-const usuarioRepo = new UsuarioRepository();
+import { Prisma } from "@prisma/client";
+import { AuthRepository } from "./auth.repository";
+import { AuthLoginRs } from "./response/auth-login-rs";
+import { UsuarioRs } from "./response/auth-register-rs";
+import { BadRequestError, DuplicateResourceError, ResourceNotFoundError, UnauthorizedError } from "../utils/error-types";
+import { toAuthLoginRs, toUserRs } from "./mapper/auth.mapper";
+import { verifyPassword, createAccessToken, getPasswordHash } from "../utils/auth"
 
 export class AuthService {
-  async login(correo: string, password: string) {
-    const usuario = await usuarioRepo.getByEmail(correo);
-    console.log("auth.login: correo recibido =", correo, "usuario encontrado =", !!usuario);
+    private authRepository = new AuthRepository();
 
-    if (!usuario) throw new UnauthorizedError("Credenciales inválidas");
+    async createAuth(data: Prisma.UsuarioCreateInput): Promise<UsuarioRs> {
+        const existingAuth = await this.authRepository.getByEmail(data.correo);
+        if (existingAuth) {
+            throw new DuplicateResourceError("El correo ya está registrado.");
+        }
 
-    // Ajusta según cómo se llame el campo en tu modelo (contraseña / contrasena / password)
-    const stored = (usuario as any).contraseña ?? (usuario as any).contrasena ?? (usuario as any).password;
-    console.log("auth.login: stored password present:", !!stored, "type:", typeof stored, "len:", stored?.length ?? 0);
+        const usuario = await this.authRepository.create(data);
 
-    if (!stored) throw new UnauthorizedError("Credenciales inválidas");
+        usuario.contraseña = getPasswordHash(usuario.contraseña);
 
-    // Soporta hash bcrypt o texto plano (solo para debug; eliminar en producción)
-    const isHashed = typeof stored === "string" && stored.startsWith("$2");
-    let valid = false;
-    if (isHashed) {
-      valid = await bcrypt.compare(password, stored);
-    } else {
-      valid = password === stored;
+        return toUserRs(usuario);
     }
-    console.log("auth.login: isHashed:", isHashed, "compare result:", valid);
 
-    if (!valid) throw new UnauthorizedError("Credenciales inválidas");
+    async loginAuth(correo: string, contra: string): Promise<AuthLoginRs> {
 
-    const payload = { sub: usuario.idUsuario, email: usuario.correo };
-    const token = jwt.sign(payload, process.env.JWT_SECRET || "dev_secret", {
-      expiresIn: process.env.JWT_EXPIRES_IN || "7d",
-    });
 
-    return {
-      token,
-      user: toUserDetailRs(usuario),
-    };
-  }
+        const usuario = await this.authRepository.getByEmail(correo);
+
+        if(!usuario){
+            throw new BadRequestError("Correo o contraseña incorrectos.");
+        }
+
+        if(verifyPassword(contra, usuario.contraseña)){
+            throw new BadRequestError("Correo o contraseña incorrectos.")
+        }
+
+        const tk_usuario = toUserRs(usuario) 
+
+        const token = createAccessToken(tk_usuario);
+        const auth = {
+            access_token: token,
+            token_type: "bearer",
+            usuario: usuario,
+        }
+        return toAuthLoginRs(auth);
+    }
 }
