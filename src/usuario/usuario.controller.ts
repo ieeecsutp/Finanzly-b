@@ -12,7 +12,8 @@ const usuarioService = new UsuarioService();
 
 // POST /usuario - Crear un nuevo usuario
 router.post("/",
-    userCreateRq(), 
+    userCreateRq(),
+    verifyToken,
     validateRequest("Datos invalidos"),
     async (req: Request, res: Response, next: NextFunction) => {
         try{
@@ -34,7 +35,7 @@ router.post("/",
 
 // GET /usuario - Obtener todos los usuarios
 
-router.get("/", async (_req: Request, res: Response, next: NextFunction) => {
+router.get("/",verifyToken, async (_req: Request, res: Response, next: NextFunction) => {
     try {
         const usuarios = await usuarioService.getAllUsuarios();
         const response: ApiResponse<typeof usuarios> = {
@@ -76,6 +77,8 @@ router.get("/:id",
 // PUT /usuario/:id - Actualizar un usuario existente
 router.put("/:id",
     userCreateRq(), // Puedes usar la misma validación o crear una específica para update
+    verifyToken,
+    verifyUserMatch,
     validateRequest("Datos invalidos"),
     async (req: Request, res: Response, next: NextFunction) => {
         try{
@@ -99,6 +102,8 @@ router.put("/:id",
 
 // DELETE /usuario/:id - Eliminar un usuario
 router.delete("/:id",
+    verifyToken,
+    verifyUserMatch,
     async (req: Request, res: Response, next: NextFunction) => {
         try{
             const id = Number(req.params.id);
