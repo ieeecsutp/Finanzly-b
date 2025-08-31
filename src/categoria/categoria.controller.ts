@@ -7,6 +7,7 @@ import { validateRequest } from "../utils/validate-request";
 import { CategoriaDetailRs } from "./response/categoria-detail-rs";
 import { CategoriaItemRs } from "./response/categoria-item-rs";
 import { RegistroItemRs } from "../registro/response/registro-item-rs";
+import { verifyToken } from "../utils/auth";
 
 const router = Router();
 const categoriaService = new CategoriaService();
@@ -14,6 +15,7 @@ const categoriaService = new CategoriaService();
 // POST /categorias - Crear una nueva categoría
 router.post("/",
     categoriaCreateRq(),
+    verifyToken,
     validateRequest("Datos inválidos para crear categoría"),
     async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -34,7 +36,7 @@ router.post("/",
 );
 
 // GET /categorias - Obtener todas las categorías
-router.get("/", async (_req: Request, res: Response, next: NextFunction) => {
+router.get("/",verifyToken, async (_req: Request, res: Response, next: NextFunction) => {
     try {
         const categorias = await categoriaService.getAllCategorias();
         
@@ -51,7 +53,7 @@ router.get("/", async (_req: Request, res: Response, next: NextFunction) => {
 });
 
 // GET /categorias/:id - Obtener una categoría por ID
-router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/:id",verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const id = Number(req.params.id);
         const categoria = await categoriaService.getCategoriaById(id);
@@ -69,7 +71,7 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
 });
 
 // GET /categorias/tipo/:tipo - Obtener categorías por tipo
-router.get("/tipo/:tipo", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/tipo/:tipo",verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const tipo = req.params.tipo;
         const categorias = await categoriaService.getCategoriasByTipo(tipo);
@@ -87,7 +89,7 @@ router.get("/tipo/:tipo", async (req: Request, res: Response, next: NextFunction
 });
 
 // GET /categorias/:id/registros - Obtener todos los registros de una categoría
-router.get("/:id/registros", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/:id/registros",verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const categoriaId = Number(req.params.id);
         const registros = await categoriaService.getRegistrosByCategoria(categoriaId);
@@ -105,7 +107,7 @@ router.get("/:id/registros", async (req: Request, res: Response, next: NextFunct
 });
 
 // GET /categorias/:id/stats - Obtener estadísticas de una categoría
-router.get("/:id/stats", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/:id/stats",verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const id = Number(req.params.id);
         const stats = await categoriaService.getCategoriaStats(id);
@@ -125,6 +127,7 @@ router.get("/:id/stats", async (req: Request, res: Response, next: NextFunction)
 // PUT /categorias/:id - Actualizar una categoría existente
 router.put("/:id",
     categoriaUpdateRq(),
+    verifyToken,
     validateRequest("Datos inválidos para actualizar categoría"),
     async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -147,7 +150,7 @@ router.put("/:id",
 );
 
 // DELETE /categorias/:id - Eliminar una categoría
-router.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.delete("/:id",verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const id = Number(req.params.id);
 

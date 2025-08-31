@@ -6,6 +6,7 @@ import { registroUpdateRq } from "./request/registro-update-rq";
 import { validateRequest } from "../utils/validate-request";
 import { RegistroDetailRs } from "./response/registro-detail-rs";
 import { RegistroItemRs } from "./response/registro-item-rs";
+import { verifyToken } from "../utils/auth";
 
 const router = Router();
 const registroService = new RegistroService();
@@ -13,6 +14,7 @@ const registroService = new RegistroService();
 // POST /registros - Crear un nuevo registro
 router.post("/",
     registroCreateRq(),
+    verifyToken,
     validateRequest("Datos inválidos para crear registro"),
     async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -33,7 +35,7 @@ router.post("/",
 );
 
 // GET /registros - Obtener todos los registros
-router.get("/", async (_req: Request, res: Response, next: NextFunction) => {
+router.get("/",verifyToken, async (_req: Request, res: Response, next: NextFunction) => {
     try {
         const registros = await registroService.getAllRegistros();
         
@@ -50,7 +52,7 @@ router.get("/", async (_req: Request, res: Response, next: NextFunction) => {
 });
 
 // GET /registros/:id - Obtener un registro por ID
-router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/:id",verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const id = Number(req.params.id);
         const registro = await registroService.getRegistroById(id);
@@ -68,7 +70,7 @@ router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
 });
 
 // GET /registros/usuario/:id - Obtener registros por usuario
-router.get("/usuario/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/usuario/:id",verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const usuarioId = Number(req.params.id);
         const registros = await registroService.getRegistrosByUsuario(usuarioId);
@@ -86,7 +88,7 @@ router.get("/usuario/:id", async (req: Request, res: Response, next: NextFunctio
 });
 
 // GET /registros/categoria/:id - Obtener registros por categoría
-router.get("/categoria/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/categoria/:id",verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const categoriaId = Number(req.params.id);
         const registros = await registroService.getRegistrosByCategoria(categoriaId);
@@ -105,7 +107,7 @@ router.get("/categoria/:id", async (req: Request, res: Response, next: NextFunct
 
 // GET /registros/fecha - Obtener registros por rango de fechas
 // Query params: startDate, endDate, usuarioId (opcional)
-router.get("/fecha/rango", async (req: Request, res: Response, next: NextFunction) => {
+router.get("/fecha/rango",verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { startDate, endDate, usuarioId } = req.query;
 
@@ -139,6 +141,7 @@ router.get("/fecha/rango", async (req: Request, res: Response, next: NextFunctio
 // PUT /registros/:id - Actualizar un registro existente
 router.put("/:id",
     registroUpdateRq(),
+    verifyToken,
     validateRequest("Datos inválidos para actualizar registro"),
     async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -161,7 +164,7 @@ router.put("/:id",
 );
 
 // DELETE /registros/:id - Eliminar un registro
-router.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
+router.delete("/:id",verifyToken, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const id = Number(req.params.id);
 

@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction, Router } from "express";
 import { AuthService } from "./auth.service";
-import { Prisma } from "@prisma/client";
 import { ApiResponse } from "../utils/api-response";
 import { validateRequest } from "../utils/validate-request";
 import { authRegisterRq } from "./request/auth-register-rq";

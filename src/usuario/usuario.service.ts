@@ -3,7 +3,7 @@ import { UsuarioRepository } from "./usuario.repository";
 import { UsuarioDetailRs } from "./response/usuario-detail-rs";
 import { DuplicateResourceError, ResourceNotFoundError } from "../utils/error-types";
 import { toUserDetailRs } from "./mapper/usuario.mapper";
-import bcrypt from "bcryptjs";
+import { getPasswordHash } from "../utils/auth"
 
 export class UsuarioService {
     private usuarioRepository = new UsuarioRepository();
@@ -15,8 +15,8 @@ export class UsuarioService {
         }
 
         // Hashear la contraseña antes de guardar
-        const hashed = bcrypt.hashSync((data as any).contraseña, 10);
-        (data as any).contraseña = hashed;
+        const hashed = getPasswordHash(data.contraseña);
+        data.contraseña = hashed;
 
         const usuario = await this.usuarioRepository.create(data);
         return toUserDetailRs(usuario);
