@@ -1,11 +1,10 @@
-
 import { Prisma } from "@prisma/client";
 import { AuthRepository } from "./auth.repository";
 import { AuthLoginRs } from "./response/auth-login-rs";
 import { UsuarioRs } from "./response/auth-register-rs";
-import { BadRequestError, DuplicateResourceError, ResourceNotFoundError, UnauthorizedError } from "../utils/error-types";
+import { BadRequestError, DuplicateResourceError } from "../utils/error-types";
 import { toAuthLoginRs, toUserRs } from "./mapper/auth.mapper";
-import { verifyPassword, createAccessToken, getPasswordHash } from "../utils/auth"
+import { verifyPassword, createAccessToken, getPasswordHash } from "../utils/auth";
 
 export class AuthService {
     private authRepository = new AuthRepository();
@@ -16,34 +15,36 @@ export class AuthService {
             throw new DuplicateResourceError("El correo ya está registrado.");
         }
 
-        const usuario = await this.authRepository.create(data);
+        // ✅ Hashear antes de guardar en la BD
+        data.contraseña = getPasswordHash(data.contraseña);
 
-        usuario.contraseña = getPasswordHash(usuario.contraseña);
+        const usuario = await this.authRepository.create(data);
 
         return toUserRs(usuario);
     }
 
     async loginAuth(correo: string, contra: string): Promise<AuthLoginRs> {
-
-
         const usuario = await this.authRepository.getByEmail(correo);
 
-        if(!usuario){
+        if (!usuario) {
             throw new BadRequestError("Correo o contraseña incorrectos.");
         }
 
-        if(verifyPassword(contra, usuario.contraseña)){
-            throw new BadRequestError("Correo o contraseña incorrectos.")
+        // ✅ Verificación correcta de la contraseña
+        const isPasswordValid = verifyPassword(contra, usuario.contraseña);
+        if (!isPasswordValid) {
+            throw new BadRequestError("Correo o contraseña incorrectos.");
         }
 
-        const tk_usuario = toUserRs(usuario) 
+        const tk_usuario = toUserRs(usuario);
 
         const token = createAccessToken(tk_usuario);
         const auth = {
             access_token: token,
             token_type: "bearer",
             usuario: usuario,
-        }
+        };
+
         return toAuthLoginRs(auth);
     }
 }
